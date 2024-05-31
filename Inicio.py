@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QWidget, QLabel, QLineEdit, 
 from PyQt6.QtGui import QFont, QPixmap
 
 from registro import RegistroUsuarioView
+from API_MAIN import Main
 
 
 class Login(QWidget):
@@ -11,6 +12,7 @@ class Login(QWidget):
         super().__init__()
 
         self.registry_page = RegistroUsuarioView(self)
+        
         self.setGeometry(100, 100, 350, 250)
         self.setWindowTitle("Login")
         self.is_logged = False
@@ -55,10 +57,11 @@ class Login(QWidget):
         register_button.move(20, 180)
         register_button.clicked.connect(self.registrar_usuario)
 
+
     def mostrar_password(self, clicked):
         if clicked:
             self.password_input.setEchoMode(
-                QLineEdit.EchoMode.Normal
+                QLineEdit.EchoMode.Normal   
             )
         else:
             self.password_input.setEchoMode(
@@ -75,6 +78,54 @@ class Login(QWidget):
             self.registry_page.show()
             self.showMinimized()
 
+    def iniciar_mainview(self):
+        users = []
+        self.user_path = 'AtlasGUI/ProyectoATLASGUI/usuarios.txt'
+        try:
+
+            with open(self.user_path, 'r') as f:
+                for linea in f:
+                    users.append(linea.strip("\n"))
+            login_information =  f"{self.user_input.text()},{self.password_input.text()}"
+
+            if login_information in users: 
+                QMessageBox.information(self,"Inicio sesión",
+                "Inicio de sesión exitoso",
+                QMessageBox.StandardButton.Ok,
+                QMessageBox.StandardButton.Ok)
+                self.is_logged = True
+                self.close()
+                self.open_main()
+
+            else: 
+
+                QMessageBox.warning(self,'Error',
+                'Usuario no encontrado',
+                QMessageBox.StandardButton.Close,
+                QMessageBox.StandardButton.Close)
+
+        except FileNotFoundError as e:
+
+                QMessageBox.warning(self,'Error',
+                'Base de datos usuarios no encontrada: {e}',
+                QMessageBox.StandardButton.Close,
+                QMessageBox.StandardButton.Close)
+        
+        except Exception as e:
+
+                QMessageBox.warning(self,'Error',
+                'Error en el servidor: {e}',
+                QMessageBox.StandardButton.Close,
+                QMessageBox.StandardButton.Close)
+
+    def open_main(self):
+        self.main_window = Main(self)
+        if self.main_window.isVisible():
+            self.main_window.hide()
+        else:
+            self.main_window.show()
+            self.showMinimized()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -82,4 +133,3 @@ if __name__ == '__main__':
     w.show()
     sys.exit(app.exec())
 
-"mirar report PyQT6 del Genis"
