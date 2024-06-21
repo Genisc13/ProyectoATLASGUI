@@ -1,6 +1,13 @@
 from PyQt6.QtWidgets import (QDialog, QLabel, QPushButton, QLineEdit, QMessageBox, QWidget)
-
+import requests
 from PyQt6.QtGui import QFont, QPixmap
+from pydantic import BaseModel
+
+class Usuario:
+    def __init__(self, nombre, contraseña, mail):
+        self.name = nombre
+        self.password = contraseña
+        self.mail = mail
 
 
 class RegistroUsuarioView(QWidget):
@@ -53,9 +60,7 @@ class RegistroUsuarioView(QWidget):
         self.mail_input = QLineEdit(self)
         self.mail_input.resize(250, 24)
         self.mail_input.move(90, 140)
-        self.mail_input.setEchoMode(
-            QLineEdit.EchoMode.Password
-        )
+        
 
         create_button=QPushButton(self)
         create_button.setText("Crear")
@@ -77,11 +82,17 @@ class RegistroUsuarioView(QWidget):
         self.close()
     
     def crear_usuario(self):
+        
         user_path ='AtlasGUI/ProyectoATLASGUI/usuarios.txt'
         usuario = self.user_input.text()
         password1 = self.password_1_input.text()
         password2 = self.password_2_input.text()
         mail=self.mail_input.text()
+        usuario_data = Usuario(usuario, password1, mail)
+        
+        #usuario_data.name=usuario
+        #usuario_data.password=password1
+        #usuario_data.mail=mail
 
         if password1 == '' or password2 == '' or usuario == '':
             QMessageBox.warning(self,'Error',
@@ -97,8 +108,10 @@ class RegistroUsuarioView(QWidget):
         
         else: 
             try: 
-                with open(user_path, 'a+') as f:
-                    f.write(f"{usuario},{password1}\n")
+                
+                auth_data = {'name':usuario_data.name,'password':usuario_data.password,'mail':usuario_data.mail}
+                
+                resp = requests.post('http://127.0.0.1:8000/add_usuario', json= auth_data)
                 QMessageBox.information(self, 'Creación Completada',
                 'Usuario creado correctamente',
                 QMessageBox.StandardButton.Ok,
@@ -110,5 +123,6 @@ class RegistroUsuarioView(QWidget):
                 f'La base de datos no existe:{e}',
                 QMessageBox.StandardButton.Close,
                 QMessageBox.StandardButton.Close)
+                
 
     

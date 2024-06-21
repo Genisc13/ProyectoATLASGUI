@@ -1,7 +1,7 @@
 import sys
 from PyQt6.QtWidgets import (QApplication, QDialog, QWidget, QLabel, QLineEdit, QPushButton, QMessageBox, QCheckBox)
 from PyQt6.QtGui import QFont, QPixmap
-
+import requests
 from registro import RegistroUsuarioView
 
 class Main(QWidget):
